@@ -21,8 +21,28 @@ public static class SetsAndMaps
     /// <param name="words">An array of 2-character words (lowercase, no duplicates)</param>
     public static string[] FindPairs(string[] words)
     {
-        // TODO Problem 1 - ADD YOUR CODE HERE
-        return [];
+        var wordSet = new HashSet<string>(words);
+        var result = new HashSet<string>();
+    
+        foreach (var word in words)
+        {   
+            // Skip words where both characters are the same
+            if (word[0] == word[1])
+            {
+                continue;
+            }
+        
+            // Create the reverse of the current word
+            var reversed = new string(new[] { word[1], word[0] });
+        
+            // Check if the reversed word exists in the set and we haven't already added this pair
+            if (wordSet.Contains(reversed) && !result.Contains($"{reversed} & {word}"))
+            {
+                result.Add($"{word} & {reversed}");
+            }
+        }
+    
+        return result.ToArray();
     }
 
     /// <summary>
@@ -42,7 +62,19 @@ public static class SetsAndMaps
         foreach (var line in File.ReadLines(filename))
         {
             var fields = line.Split(",");
-            // TODO Problem 2 - ADD YOUR CODE HERE
+            if (fields.Length >= 4)
+            {
+                string degree = fields[3].Trim();
+            
+                if (degrees.ContainsKey(degree))
+                {
+                    degrees[degree]++;
+                }
+                else
+                {
+                    degrees[degree] = 1;
+                }
+            }
         }
 
         return degrees;
@@ -66,8 +98,50 @@ public static class SetsAndMaps
     /// </summary>
     public static bool IsAnagram(string word1, string word2)
     {
-        // TODO Problem 3 - ADD YOUR CODE HERE
-        return false;
+        // Remove spaces and convert to lowercase
+        string cleanWord1 = word1.Replace(" ", "").ToLower();
+        string cleanWord2 = word2.Replace(" ", "").ToLower();
+    
+        // If lengths are different, they can't be anagrams
+        if (cleanWord1.Length != cleanWord2.Length)
+        {
+            return false;
+        }
+    
+        // Use dictionary to count letter frequencies
+        var letterCounts = new Dictionary<char, int>();
+    
+        // Count letters in first word
+        foreach (char c in cleanWord1)
+        {
+            if (letterCounts.ContainsKey(c))
+            {
+                letterCounts[c]++;
+            }
+            else
+            {
+                letterCounts[c] = 1;
+            }
+        }
+    
+        // Subtract counts using second word
+        foreach (char c in cleanWord2)
+        {
+            if (!letterCounts.ContainsKey(c))
+            {
+                return false; // Letter not in first word
+            }
+        
+            letterCounts[c]--;
+        
+            if (letterCounts[c] == 0)
+            {
+                letterCounts.Remove(c);
+            }
+        }
+    
+        // If dictionary is empty, all letters matched
+        return letterCounts.Count == 0;
     }
 
     /// <summary>
